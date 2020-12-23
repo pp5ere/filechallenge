@@ -5,29 +5,62 @@ import (
 	"desafioNeoWay/controller"
 	"desafioNeoWay/entity"
 	"desafioNeoWay/repository"
-	"desafioNeoWay/util"
-	"errors"
 	"fmt"
+	"html/template"
 	"log"
+	"net/http"
 	"os"
-	"regexp"
-	"strings"
 )
 
 var scanner *bufio.Scanner
 
-func main() {	
+func receiveFile(w http.ResponseWriter, r *http.Request) { 
+	r.ParseMultipartForm(32 << 20)   
+	switch r.Method {
+		case "POST":
+			txtFile, err := repository.SaveFile(w, r);if err != nil{
+				log.Fatal(err)
+			}
+			w.Write([]byte(fmt.Sprintln("Iniciando processamento do Arquivo...")))
+			go Start(txtFile)
+		default:
+			w.WriteHeader(http.StatusNotImplemented)
+			w.Write([]byte(http.StatusText(http.StatusNotImplemented)))
+   	}
+}
+
+func renderTemplate(w http.ResponseWriter, r *http.Request) {
+	parsedTemplate, _ := template.ParseFiles("template/index.html")
+	err := parsedTemplate.Execute(w, nil)
+	if err != nil {
+		log.Println("Error executing template :", err)
+		return
+	}
+}
+   
+
+func main() {
+	http.HandleFunc("/", renderTemplate)
+	http.HandleFunc("/upload", receiveFile)
+    http.ListenAndServe(":8080", nil)
+}
+
+//Start and proccess a received file
+func Start(txtFile *repository.TxtFile) {
 	log.Println("start app")
-	txtFile := TxtFile{FilePath: "base_teste.txt"}
 	file, err := txtFile.ReadFile();if  err != nil{
 		log.Fatal(err.Error())
 	}
 	if err := ProccessFile(file); err != nil{
 		log.Fatal(err.Error())
 	}
+	if err := txtFile.RemoveFile(); err != nil{
+		log.Println(err.Error())
+	}
 	log.Println("stop app")
 }
 
+//ProccessFile scan whole file transform and insert into database
 func ProccessFile(file *os.File) error {
 	repo, err := repository.New("127.0.0.1", "5432", "postgres", "1234", "store"); if err != nil {
 		return err
@@ -38,60 +71,13 @@ func ProccessFile(file *os.File) error {
 	defer file.Close()
 	scanner.Scan()
     for scanner.Scan() {
-		line := RemoveSpaces(scanner.Text())
-		if err := ParseToStruct(line, &salesData); err != nil{
+		line := repository.RemoveSpaces(scanner.Text())
+		if err := repository.ParseToStruct(line, &salesData); err != nil{
 			return err
 		}
 		if err := ctrl.Sales.Insert(&salesData); err != nil{
 			return err
 		}
     }
-	return nil
-}
-
-type TxtFile struct{
-	FilePath string
-}
-
-func (txt *TxtFile) ReadFile() (*os.File, error) {
-	txtFile, err := os.Open(txt.FilePath); if err != nil{
-		return nil, err
-	}
-	return txtFile, nil
-}
-
-func RemoveSpaces(line string) string{
-	space := regexp.MustCompile(`\s+`)
-	return space.ReplaceAllString(line, ";")
-}
-
-func ParseToStruct(line string, txt *entity.SalesData) error {
-	arr := strings.Split(line, ";")
-	if len(arr) == 8 {
-		cpf 		:= util.GetOnlyNumbers(arr[0])
-		isValidCpf 	:= util.CpfIsValid(cpf)		
-		prv, err := util.GetBoolean(arr[1]); if err != nil{
-			return err
-		}
-		inc, err := util.GetBoolean(arr[2]); if err != nil{
-			return err
-		}
-		date := util.GetDate(arr[3])
-		tktMedio := util.GetFloat(arr[4])
-		tktUlt := util.GetFloat(arr[5])
-		txt.Cpf 						= cpf
-		txt.CpfValido					= isValidCpf
-		txt.Private 					= prv
-		txt.Incompleto 					= inc
-		txt.DataDaUltimaCompra 			= date
-		txt.TicketMedio 				= tktMedio
-		txt.TicketDaUltimaCompra		= tktUlt
-		txt.LojaMaisFrequente 			= util.GetOnlyNumbers(arr[6])
-		txt.CnpjLojaMaisFrequenteValido = util.CnpjIsValid(txt.LojaMaisFrequente)
-		txt.LojaDaUltimaCompra 			= util.GetOnlyNumbers(arr[7])
-		txt.CnpjLojaDaUltimaCompraValido= util.CnpjIsValid(txt.LojaDaUltimaCompra)
-	}else{
-		return errors.New(fmt.Sprintln("Cannot parse to struct because columns number is wrong", arr))
-	}	
 	return nil
 }
