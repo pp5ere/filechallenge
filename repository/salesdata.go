@@ -14,6 +14,10 @@ type SalesInterface interface{
 //Insert a new sales data
 func (c *DataBase) Insert(s *entity.SalesData) error{
 	db := c.connection
+	sqlDB, err := db.DB(); if err != nil{
+		return err
+	}
+	defer sqlDB.Close()
 	t := db.Exec(getCommand(s))
 	return t.Error
 	//return db.Create(&s).Error
