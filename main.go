@@ -77,7 +77,7 @@ func Start(txtFile *repository.TxtFile) {
 
 	txtFile.ProcessFile(file)
 	
-	if err := InsertIntoDb(txtFile); err != nil{
+	if err := InsertIntoDbByGoRotine(txtFile); err != nil{
 		log.Println(err.Error())
 	}
 
@@ -88,8 +88,8 @@ func Start(txtFile *repository.TxtFile) {
 	log.Println("stop to proccess file")
 }
 
-//InsertIntoDb insert txtfile into database
-func InsertIntoDb(txtFile *repository.TxtFile) error {	
+//InsertIntoDbByGoRotine insert txtfile into database using gorotine
+func InsertIntoDbByGoRotine(txtFile *repository.TxtFile) error {	
 	linesByGoRotine := linesToProcessForEachGoRotine(txtFile.Lines)
 	wg := &sync.WaitGroup{}
 	wg.Add(len(linesByGoRotine))
@@ -100,7 +100,7 @@ func InsertIntoDb(txtFile *repository.TxtFile) error {
 	
 	return nil
 }
-
+//Persist insert data into database
 func Persist(wg *sync.WaitGroup, txtFile *repository.TxtFile, pStart int64, pEnd int64)  {
 	repo, err := repository.New(os.Getenv("DB_HOSTNAME"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_DATABASE")); if err != nil {
 		log.Println(err.Error())
