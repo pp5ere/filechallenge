@@ -4,7 +4,7 @@
 
 # Como executar
 
-Para executar o aplicativo basta instalar o docker e docker-compose. Após basta executar o arquivo docker-compose com o comando:
+Para executar o aplicativo basta clonar o repositorio, instalar o docker e docker-compose. Após basta entrar na pasta do repositório e executar o arquivo docker-compose com o comando:
 
 ```
 docker-compose up -d
