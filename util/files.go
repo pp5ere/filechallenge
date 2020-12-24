@@ -13,3 +13,13 @@ func DirExist(dirPath string) bool {
 	}
 	return true
 }
+
+//CreateDir create a new directory folder
+func CreateDir(dirPath string) error{
+	if !DirExist(dirPath){
+		if err := os.Mkdir(dirPath, 0755); err != nil{
+			return err
+		}
+	}
+	return nil
+}
