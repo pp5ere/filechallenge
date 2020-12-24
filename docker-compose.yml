@@ -9,6 +9,7 @@ services:
     links:
       - postgres:postgres
     environment:
+      APP_PORT: '8080'
       DB_HOSTNAME: 'postgres_container'
       DB_PORT: '5432'
       DB_USER: 'postgres'
