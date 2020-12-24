@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"desafioNeoWay/entity"
+	"filechallenge/entity"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

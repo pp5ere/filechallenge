@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"desafioNeoWay/entity"
-	"desafioNeoWay/util"
+	"filechallenge/entity"
+	"filechallenge/util"
 	"errors"
 	"fmt"
 	"io"

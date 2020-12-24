@@ -2,10 +2,10 @@ package main
 
 import (
 	"bufio"
-	"desafioNeoWay/controller"
-	"desafioNeoWay/entity"
-	"desafioNeoWay/repository"
-	"desafioNeoWay/util"
+	"filechallenge/controller"
+	"filechallenge/entity"
+	"filechallenge/repository"
+	"filechallenge/util"
 	"fmt"
 	"html/template"
 	"io"

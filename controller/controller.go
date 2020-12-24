@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"desafioNeoWay/entity"
-	"desafioNeoWay/repository"
+	"filechallenge/entity"
+	"filechallenge/repository"
 )
 
 // Controllers contains the Controllers for each Entity.
