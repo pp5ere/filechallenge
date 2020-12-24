@@ -1,13 +1,13 @@
 FROM golang:latest
 
-ADD . /go/src/desafioNeoWay
-WORKDIR $GOPATH/src/desafioNeoWay
+ADD . /go/src/filechallenge
+WORKDIR $GOPATH/src/filechallenge
 
 RUN go get gorm.io/gorm
 RUN go get gorm.io/driver/postgres
 
-RUN go build -o /go/bin/challengefile
+RUN go build -o /go/bin/filechallenge
 
-ENTRYPOINT /go/bin/challengefile
+ENTRYPOINT /go/bin/filechallenge
 
 EXPOSE 8080

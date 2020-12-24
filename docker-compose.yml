@@ -15,7 +15,7 @@ services:
       DB_PASSWORD: '1234'
       DB_DATABASE: 'store'
     volumes:
-      - .:/go/src/desafioNeoWay
+      - .:/go/src/filechallenge
     restart: on-failure
     depends_on: 
       - "postgres"
