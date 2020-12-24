@@ -40,10 +40,8 @@ func SaveFile(w http.ResponseWriter, r *http.Request)(*TxtFile ,error) {
 		return nil,err
 	}
 	dirPath := "temp"
-	if !util.DirExist(dirPath){
-		if err := os.Mkdir("temp", 0755); err != nil{
-			return nil, err
-		}
+	if err := util.CreateDir(dirPath); err != nil {		
+		return nil, err
 	}
 	out, pathError := ioutil.TempFile(dirPath, fileHeader.Filename); if pathError != nil {
 		return nil, errors.New(fmt.Sprintln("Error Creating a file for writing", pathError))
@@ -91,7 +89,7 @@ func ParseToStruct(line string, txt *entity.SalesData) error {
 		txt.LojaDaUltimaCompra 			= util.GetOnlyNumbers(arr[7])
 		txt.CnpjLojaDaUltimaCompraValido= util.CnpjIsValid(txt.LojaDaUltimaCompra)
 	}else{
-		return errors.New(fmt.Sprintln("Cannot parse to struct because columns number should be", len(arr), arr))
+		return errors.New(fmt.Sprint("Cannot parse to struct because columns number must be ", 8, arr))
 	}	
 	return nil
 }
