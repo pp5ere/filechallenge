@@ -69,7 +69,7 @@ func Start(txtFile *repository.TxtFile) {
 	file, err := txtFile.ReadFile();if  err != nil{
 		log.Println(err.Error())
 	}
-	if err := ProccessFile(file); err != nil{
+	if err := ProcessFile(file); err != nil{
 		log.Println(err.Error())
 	}
 	if err := txtFile.RemoveFile(); err != nil{
@@ -78,8 +78,8 @@ func Start(txtFile *repository.TxtFile) {
 	log.Println("stop to proccess file")
 }
 
-//ProccessFile scan whole file transform and insert into database
-func ProccessFile(file *os.File) error {	
+//ProcessFile scan whole file transform and insert into database
+func ProcessFile(file *os.File) error {	
 	repo, err := repository.New(os.Getenv("DB_HOSTNAME"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_DATABASE")); if err != nil {
 		return err
 	}
