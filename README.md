@@ -11,7 +11,7 @@ docker-compose up -d
 ```
 
 # Como utilizar
-Após o subir todos os containers, basta acessar o navegador de sua preferência e enviar o arquivo acessando a url:
+Após o subir todos os containers, basta acessar o navegador de sua preferência e enviar o arquivo "base_teste.txt" acessando a url:
 
 ```
 http://localhost:8080
