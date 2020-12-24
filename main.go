@@ -5,11 +5,14 @@ import (
 	"desafioNeoWay/controller"
 	"desafioNeoWay/entity"
 	"desafioNeoWay/repository"
+	"desafioNeoWay/util"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 var scanner *bufio.Scanner
@@ -21,7 +24,7 @@ func receiveFile(w http.ResponseWriter, r *http.Request) {
 			txtFile, err := repository.SaveFile(w, r);if err != nil{
 				log.Fatal(err)
 			}
-			w.Write([]byte(fmt.Sprintln("Iniciando processamento do Arquivo...")))
+			w.Write([]byte(fmt.Sprintln(time.Now(),"Iniciando processamento do Arquivo...")))
 			go Start(txtFile)
 		default:
 			w.WriteHeader(http.StatusNotImplemented)
@@ -40,29 +43,44 @@ func renderTemplate(w http.ResponseWriter, r *http.Request) {
    
 
 func main() {
+	setLogOutPut()	
+	log.Println("start application")
 	http.HandleFunc("/", renderTemplate)
 	http.HandleFunc("/upload", receiveFile)
-    http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8080", nil)
+}
+
+func setLogOutPut(){
+	dirPath := "log"
+	if err := util.CreateDir(dirPath); err != nil {		
+		log.Println(err.Error())
+	}
+	f, err := os.OpenFile(dirPath + "/logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666); if err != nil {
+        log.Println("error opening file:", err)
+    }
+    wrt := io.MultiWriter(os.Stdout, f)
+
+	log.SetOutput(wrt)
 }
 
 //Start and proccess a received file
 func Start(txtFile *repository.TxtFile) {
-	log.Println("start app")
+	log.Println("start to proccess file")
 	file, err := txtFile.ReadFile();if  err != nil{
-		log.Fatal(err.Error())
+		log.Println(err.Error())
 	}
 	if err := ProccessFile(file); err != nil{
-		log.Fatal(err.Error())
+		log.Println(err.Error())
 	}
 	if err := txtFile.RemoveFile(); err != nil{
 		log.Println(err.Error())
 	}
-	log.Println("stop app")
+	log.Println("stop to proccess file")
 }
 
 //ProccessFile scan whole file transform and insert into database
-func ProccessFile(file *os.File) error {
-	repo, err := repository.New("127.0.0.1", "5432", "postgres", "1234", "store"); if err != nil {
+func ProccessFile(file *os.File) error {	
+	repo, err := repository.New(os.Getenv("DB_HOSTNAME"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_DATABASE")); if err != nil {
 		return err
 	}
 	ctrl := controller.New(repo)
