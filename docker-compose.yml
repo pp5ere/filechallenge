@@ -1,5 +1,24 @@
 version: "2.3"
 services:
+  challengefile:
+    build: .
+    ports: 
+      - "8080:8080"
+    networks: 
+      - docker_network
+    links:
+      - postgres:postgres
+    environment:
+      DB_HOSTNAME: 'postgres_container'
+      DB_PORT: '5432'
+      DB_USER: 'postgres'
+      DB_PASSWORD: '1234'
+      DB_DATABASE: 'store'
+    volumes:
+      - .:/go/src/desafioNeoWay
+    restart: on-failure
+    depends_on: 
+      - "postgres"
   postgres:
     restart: always
     image: postgres
